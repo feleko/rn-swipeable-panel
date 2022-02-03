@@ -4,7 +4,7 @@
 // Definitions: https://github.com/DefinitelyTyped/types/rn-swipeable-panel
 
 import * as React from 'react';
-import { ScrollViewProps } from 'react-native';
+import {ScrollViewProps, ViewProps} from 'react-native';
 
 declare interface SwipeablePanelProps extends React.Props<SwipeablePanel> {
   /**
@@ -96,7 +96,18 @@ declare interface SwipeablePanelProps extends React.Props<SwipeablePanel> {
   /**
    * You can pass your scroll view props
    */
-  scrollViewProps?: ScrollViewProps;
+  viewProps?: ViewProps;
+
+  /**
+   * Set to true if you want the panel to never disappear.
+   */
+  neverHidden?: boolean;
+
+  /**
+   * Provides  the current status of the panel.
+   */
+  getActualStatus?: (status: number) => void;
+
 }
 
 declare var LARGE_PANEL_CONTENT_HEIGHT: number;

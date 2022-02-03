@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
-  ScrollView,
   View,
   TouchableHighlight,
   TouchableWithoutFeedback,
   Animated,
   Dimensions,
   PanResponder,
-  ScrollViewProps,
+  ViewProps,
 } from 'react-native';
 
 import { Bar } from './Bar';
@@ -40,12 +39,12 @@ type SwipeablePanelProps = {
   smallPanelHeight?: number;
   noBar?: boolean;
   barStyle?: object;
-  barContainerStyle?: object,
+  barContainerStyle?: object;
   allowTouchOutside?: boolean;
-  scrollViewProps?: ScrollViewProps;
+  viewProps?: ViewProps;
+  neverHidden?: boolean;
+  getActualStatus?: (status: number) => void;
 };
-
-type MaybeAnimated<T> = T | Animated.Value;
 
 type SwipeablePanelState = {
   status: number;
@@ -85,8 +84,8 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
     this.animatedValueY = 0;
 
     this._panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onPanResponderGrant: (evt, gestureState) => {
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
         this.state.pan.setOffset({
           x: 0,
           y: this.animatedValueY,
@@ -113,7 +112,13 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
           else this._animateTo(STATUS.LARGE);
         } else if (gestureState.dy > 100 || gestureState.vy > 0.5) {
           if (this.state.status === STATUS.LARGE) this._animateTo(onlyLarge ? STATUS.CLOSED : STATUS.SMALL);
-          else this._animateTo(0);
+          else {
+            if (this.props.neverHidden) {
+              this._animateTo(STATUS.SMALL);
+            } else {
+              this._animateTo(0);
+            }
+          }
         } else this._animateTo(this.state.status);
       },
     });
@@ -150,7 +155,12 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
   };
 
   componentDidUpdate(prevProps: SwipeablePanelProps, prevState: SwipeablePanelState) {
-    const { isActive, openLarge, onlyLarge, onlySmall } = this.props;
+    const { isActive, openLarge, onlyLarge, onlySmall, getActualStatus } = this.props;
+
+    if (getActualStatus) {
+      getActualStatus(this.state.status);
+    }
+
     if (onlyLarge && onlySmall)
       console.warn(
         'Ops. You are using both onlyLarge and onlySmall options. onlySmall will override the onlyLarge in this situation. Please select one of them or none.',
@@ -175,7 +185,10 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
 
     if (newStatus === STATUS.CLOSED) newY = PANEL_HEIGHT;
     else if (newStatus === STATUS.SMALL)
-      newY = this.state.orientation === 'portrait' ? FULL_HEIGHT - (smallPanelHeight ?? 400) : FULL_HEIGHT / 3;
+      newY =
+        this.state.orientation === 'portrait'
+          ? FULL_HEIGHT - (smallPanelHeight ?? SMALL_PANEL_CONTENT_HEIGHT)
+          : FULL_HEIGHT / 3;
     else if (newStatus === STATUS.LARGE) newY = 0;
 
     this.setState({
@@ -196,7 +209,7 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
         this.setState({
           showComponent: false,
         });
-      } else this.setState({ canScroll: newStatus === STATUS.LARGE ? true : false });
+      } else this.setState({ canScroll: newStatus === STATUS.LARGE });
     });
   };
 
@@ -255,15 +268,15 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
           {this.props.showCloseButton && (
             <Close rootStyle={closeRootStyle} iconStyle={closeIconStyle} onPress={this.props.onClose} />
           )}
-          <ScrollView
+          <View
             onTouchStart={() => {
               return false;
             }}
             onTouchEnd={() => {
               return false;
             }}
-            contentContainerStyle={SwipeablePanelStyles.scrollViewContentContainerStyle}
-            {...this.props.scrollViewProps}
+            style={SwipeablePanelStyles.scrollViewContentContainerStyle}
+            {...this.props.viewProps}
           >
             {this.state.canScroll ? (
               <TouchableHighlight>
@@ -272,7 +285,7 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
             ) : (
               this.props.children
             )}
-          </ScrollView>
+          </View>
         </Animated.View>
       </Animated.View>
     ) : null;
