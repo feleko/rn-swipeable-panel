@@ -4,9 +4,9 @@
 // Definitions: https://github.com/DefinitelyTyped/types/rn-swipeable-panel
 
 import * as React from 'react';
-import {ScrollViewProps, ViewProps} from 'react-native';
+import { ViewProps } from 'react-native';
 
-declare interface SwipeablePanelProps extends React.Props<SwipeablePanel> {
+declare interface SwipeablePanelProps {
   /**
    * Required prop for panels actual state. Set true if you want to open panel
    */
