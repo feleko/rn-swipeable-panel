@@ -1,6 +1,6 @@
 {
   "name": "rn-swipeable-panel",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Swipeable bottom panel for react native",
   "author": "Enes Ozturk",
   "license": "MIT",
@@ -9,9 +9,7 @@
     "url": "https://github.com/enesozturk/rn-swipeable-panel"
   },
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
   "types": "dist/index.d.ts",
-  "source": "src/index.ts",
   "files": [
     "dist",
     "src"
@@ -24,9 +22,9 @@
     "example": "example"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "prepare": "run-s build",
+    "build": "rm -rf dist && tsc",
+    "start": "tsc",
+    "prepare": "yarn build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",
