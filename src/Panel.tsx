@@ -64,6 +64,7 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
   isClosing: boolean;
   _panResponder: any;
   animatedValueY: number;
+
   constructor(props: SwipeablePanelProps) {
     super(props);
     this.state = {
@@ -213,6 +214,12 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
     });
   };
 
+  private panelHeight(): number {
+    if (this.state.status === STATUS.SMALL) return SMALL_PANEL_CONTENT_HEIGHT - 100;
+    else if (this.state.status === STATUS.LARGE) return LARGE_PANEL_CONTENT_HEIGHT;
+    else return PANEL_HEIGHT;
+  }
+
   render() {
     const { showComponent, deviceWidth, deviceHeight, panelHeight } = this.state;
     const {
@@ -233,7 +240,7 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
           SwipeablePanelStyles.background,
           {
             backgroundColor: noBackgroundOpacity ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)',
-            height: allowTouchOutside ? 'auto' : deviceHeight,
+            height: allowTouchOutside ? this.panelHeight() : deviceHeight,
             width: deviceWidth,
           },
         ]}
@@ -246,7 +253,7 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
                 {
                   width: deviceWidth,
                   backgroundColor: 'rgba(0,0,0,0)',
-                  height: allowTouchOutside ? 'auto' : deviceHeight,
+                  height: allowTouchOutside ? this.panelHeight() : deviceHeight,
                 },
               ]}
             />
